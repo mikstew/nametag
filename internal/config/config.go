@@ -8,7 +8,7 @@ var Version = "1.0.0"
 const (
 	AppID       = "github.com.mikstew.nametag"
 	WindowTitle = "Nametag"
-	DisplayName = "Mikio S."
+	DisplayName = "Mikio"
 	GitHubRepo  = "mikstew/nametag"
 )
 
