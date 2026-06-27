@@ -19,6 +19,8 @@ internal/
 
 - Go 1.22+
 - macOS: Xcode command line tools (for native window support)
+- Linux: X11 or Wayland, OpenGL/Mesa dev libraries (for local builds)
+- Windows: MinGW-w64 GCC (included with Go on Windows)
 
 ## Run
 
@@ -45,11 +47,11 @@ Edit `DisplayName` and `TagColor` in `internal/config/config.go`, then rebuild.
 
 The refresh button on the nametag checks [GitHub Releases](https://github.com/mikstew/nametag/releases) for a newer version. If one exists, it downloads the binary for your OS/arch and restarts.
 
-Release assets are named `nametag-darwin-arm64`, `nametag-linux-amd64`, etc.
+Release assets are named `nametag-darwin-arm64`, `nametag-linux-amd64`, `nametag-windows-amd64.exe`, etc.
 
 ### Publish a release
 
-Commit your changes, push, tag, and push the tag. GitHub Actions builds all four platforms and publishes the release:
+Commit your changes, push, tag, and push the tag. GitHub Actions builds all five platform binaries and publishes the release:
 
 ```bash
 git push origin main

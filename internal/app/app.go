@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"os"
 
 	"fyne.io/fyne/v2"
 	fyneapp "fyne.io/fyne/v2/app"
@@ -63,10 +64,14 @@ func (a *App) handleUpdate(btn *widget.Button) {
 				return
 			}
 			if result.Updated {
-				dialog.ShowInformation("Update installed", result.Message+" Restarting...", a.window)
-				if err := platform.Restart(); err != nil {
+				a.window.Hide()
+				if err := platform.LaunchHandoff(); err != nil {
+					a.window.Show()
 					dialog.ShowError(err, a.window)
+					return
 				}
+				a.fyneApp.Quit()
+				os.Exit(0)
 				return
 			}
 			dialog.ShowInformation("Up to date", result.Message, a.window)

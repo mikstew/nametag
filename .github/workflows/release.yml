@@ -12,6 +12,9 @@ jobs:
   build:
     name: build ${{ matrix.goos }}-${{ matrix.goarch }}
     runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +31,9 @@ jobs:
           - runner: ubuntu-24.04-arm
             goos: linux
             goarch: arm64
+          - runner: windows-latest
+            goos: windows
+            goarch: amd64
 
     steps:
       - uses: actions/checkout@v4
@@ -53,15 +59,21 @@ jobs:
           if [ "${{ matrix.goos }}" = "darwin" ]; then
             LDFLAGS="${LDFLAGS} -extldflags=-Wl,-no_warn_duplicate_libraries"
           fi
+          OUTPUT="nametag-${{ matrix.goos }}-${{ matrix.goarch }}"
+          if [ "${{ matrix.goos }}" = "windows" ]; then
+            OUTPUT="${OUTPUT}.exe"
+          fi
           go build \
             -ldflags "${LDFLAGS}" \
-            -o "nametag-${{ matrix.goos }}-${{ matrix.goarch }}" \
+            -o "${OUTPUT}" \
             ./cmd/nametag
+          echo "output=${OUTPUT}" >> "${GITHUB_OUTPUT}"
+        id: build
 
       - uses: actions/upload-artifact@v4
         with:
           name: nametag-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: nametag-${{ matrix.goos }}-${{ matrix.goarch }}
+          path: ${{ steps.build.outputs.output }}
 
   release:
     name: publish release
