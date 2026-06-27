@@ -49,8 +49,12 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
+          LDFLAGS="-s -w -X github.com/mikio/nametag/internal/config.Version=${VERSION}"
+          if [ "${{ matrix.goos }}" = "darwin" ]; then
+            LDFLAGS="${LDFLAGS} -extldflags=-Wl,-no_warn_duplicate_libraries"
+          fi
           go build \
-            -ldflags "-s -w -extldflags=-Wl,-no_warn_duplicate_libraries -X github.com/mikio/nametag/internal/config.Version=${VERSION}" \
+            -ldflags "${LDFLAGS}" \
             -o "nametag-${{ matrix.goos }}-${{ matrix.goarch }}" \
             ./cmd/nametag
 

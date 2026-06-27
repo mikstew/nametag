@@ -35,6 +35,8 @@ go build \
   ./cmd/nametag
 ```
 
+The `-extldflags` flag is macOS-only (silences a harmless `-lobjc` linker warning).
+
 ## Customize
 
 Edit `DisplayName` and `TagColor` in `internal/config/config.go`, then rebuild.
