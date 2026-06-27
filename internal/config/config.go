@@ -6,10 +6,10 @@ import "image/color"
 var Version = "1.0.0"
 
 const (
-	AppID      = "github.com.mikio.nametag"
+	AppID       = "github.com.mikstew.nametag"
 	WindowTitle = "Nametag"
 	DisplayName = "Mikio S."
-	GitHubRepo  = "mikio/nametag"
+	GitHubRepo  = "mikstew/nametag"
 )
 
 var TagColor = color.NRGBA{R: 0x4A, G: 0x90, B: 0xD9, A: 0xFF}
