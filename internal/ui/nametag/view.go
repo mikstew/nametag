@@ -6,22 +6,17 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/theme"
-	"fyne.io/fyne/v2/widget"
 )
 
 // Options configures the nametag view.
 type Options struct {
 	DisplayName string
 	Color       color.Color
-	OnUpdate    func(btn *widget.Button)
 }
 
-// View renders a nametag with an update control.
+// View renders a nametag.
 type View struct {
-	root      fyne.CanvasObject
-	updateBtn *widget.Button
+	root fyne.CanvasObject
 }
 
 // New builds a nametag view from the given options.
@@ -41,23 +36,9 @@ func New(opts Options) *View {
 	clip.SetMinSize(fyne.NewSize(36, 10))
 	clip.CornerRadius = 2
 
-	updateBtn := widget.NewButtonWithIcon("", theme.ViewRefreshIcon(), nil)
-	updateBtn.Importance = widget.LowImportance
-	if opts.OnUpdate != nil {
-		updateBtn.OnTapped = func() {
-			opts.OnUpdate(updateBtn)
-		}
-	}
-
 	tagBody := container.NewStack(
 		tagFace,
-		container.NewBorder(
-			nil,
-			container.NewHBox(layout.NewSpacer(), updateBtn),
-			nil,
-			nil,
-			container.NewCenter(nameLabel),
-		),
+		container.NewCenter(nameLabel),
 	)
 
 	root := container.NewVBox(
@@ -65,10 +46,7 @@ func New(opts Options) *View {
 		tagBody,
 	)
 
-	return &View{
-		root:      root,
-		updateBtn: updateBtn,
-	}
+	return &View{root: root}
 }
 
 // CanvasObject returns the root widget for the view.

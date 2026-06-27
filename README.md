@@ -45,7 +45,7 @@ Edit `DisplayName` and `TagColor` in `internal/config/config.go`, then rebuild.
 
 ## Releases and self-update
 
-The refresh button on the nametag checks [GitHub Releases](https://github.com/mikstew/nametag/releases) for a newer version. If one exists, it downloads the binary for your OS/arch and restarts.
+The app checks [GitHub Releases](https://github.com/mikstew/nametag/releases) every minute for a newer version. If one exists, it downloads the binary and restarts.
 
 Release assets are named `nametag-darwin-arm64`, `nametag-linux-amd64`, `nametag-windows-amd64.exe`, etc.
 

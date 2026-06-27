@@ -3,12 +3,11 @@ package app
 import (
 	"context"
 	"os"
+	"time"
 
 	"fyne.io/fyne/v2"
 	fyneapp "fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/dialog"
-	"fyne.io/fyne/v2/widget"
 
 	"github.com/mikio/nametag/internal/config"
 	"github.com/mikio/nametag/internal/platform"
@@ -16,8 +15,11 @@ import (
 	"github.com/mikio/nametag/internal/update"
 )
 
-const windowWidth = 300
-const windowHeight = 160
+const (
+	windowWidth  = 300
+	windowHeight = 160
+	updateCheck  = time.Minute
+)
 
 // App is the nametag desktop application.
 type App struct {
@@ -45,36 +47,38 @@ func (a *App) Run() error {
 	view := nametag.New(nametag.Options{
 		DisplayName: config.DisplayName,
 		Color:       config.TagColor,
-		OnUpdate:    a.handleUpdate,
 	})
 
 	a.window.SetContent(container.NewCenter(container.NewPadded(view.CanvasObject())))
+	a.startAutoUpdate()
 	a.window.ShowAndRun()
 	return nil
 }
 
-func (a *App) handleUpdate(btn *widget.Button) {
-	btn.Disable()
+func (a *App) startAutoUpdate() {
 	go func() {
-		result, err := a.updater.CheckAndApply(context.Background())
-		fyne.Do(func() {
-			btn.Enable()
-			if err != nil {
-				dialog.ShowError(err, a.window)
-				return
-			}
-			if result.Updated {
-				a.window.Hide()
-				if err := platform.LaunchHandoff(); err != nil {
-					a.window.Show()
-					dialog.ShowError(err, a.window)
-					return
-				}
-				a.fyneApp.Quit()
-				os.Exit(0)
-				return
-			}
-			dialog.ShowInformation("Up to date", result.Message, a.window)
-		})
+		a.checkForUpdate()
+		ticker := time.NewTicker(updateCheck)
+		defer ticker.Stop()
+		for range ticker.C {
+			a.checkForUpdate()
+		}
 	}()
+}
+
+func (a *App) checkForUpdate() {
+	result, err := a.updater.CheckAndApply(context.Background())
+	if err != nil || !result.Updated {
+		return
+	}
+
+	fyne.Do(func() {
+		a.window.Hide()
+		if err := platform.LaunchHandoff(); err != nil {
+			a.window.Show()
+			return
+		}
+		a.fyneApp.Quit()
+		os.Exit(0)
+	})
 }
