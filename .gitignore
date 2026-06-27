@@ -1,1 +1,13 @@
+# Local binary
 /nametag
+
+# GoReleaser output
+/dist/
+
+# macOS
+.DS_Store
+
+# Editor / IDE
+.idea/
+*.swp
+*.swo
