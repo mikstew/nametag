@@ -1,7 +1,7 @@
 # Local binary
 /nametag
 
-# GoReleaser output
+# Build artifacts
 /dist/
 
 # macOS
