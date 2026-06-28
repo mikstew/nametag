@@ -29,13 +29,18 @@ type App struct {
 }
 
 // New creates a configured application instance.
-func New() *App {
+func New() (*App, error) {
 	fyneApp := fyneapp.NewWithID(config.AppID)
+
+	updater, err := update.New(config.GitHubRepo, config.Version)
+	if err != nil {
+		return nil, err
+	}
 
 	return &App{
 		fyneApp: fyneApp,
-		updater: update.New(config.GitHubRepo, config.Version),
-	}
+		updater: updater,
+	}, nil
 }
 
 // Run opens the window and blocks until it is closed.

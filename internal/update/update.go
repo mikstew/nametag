@@ -8,6 +8,8 @@ import (
 	"github.com/creativeprojects/go-selfupdate"
 )
 
+const checksumsFile = "checksums.txt"
+
 // Result describes the outcome of an update check.
 type Result struct {
 	Updated bool
@@ -19,18 +21,32 @@ type Result struct {
 type Service struct {
 	repo    string
 	version string
+	updater *selfupdate.Updater
 }
 
 // New creates an update service for the given repository slug and version.
-func New(repo, version string) *Service {
-	return &Service{repo: repo, version: version}
+func New(repo, version string) (*Service, error) {
+	updater, err := selfupdate.NewUpdater(selfupdate.Config{
+		Validator: &selfupdate.ChecksumValidator{
+			UniqueFilename: checksumsFile,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("create updater: %w", err)
+	}
+
+	return &Service{
+		repo:    repo,
+		version: version,
+		updater: updater,
+	}, nil
 }
 
 // CheckAndApply fetches the latest release and replaces the running binary when newer.
 func (s *Service) CheckAndApply(ctx context.Context) (Result, error) {
 	repo := selfupdate.ParseSlug(s.repo)
 
-	latest, found, err := selfupdate.DetectLatest(ctx, repo)
+	latest, found, err := s.updater.DetectLatest(ctx, repo)
 	if err != nil {
 		return Result{}, fmt.Errorf("check for updates: %w", err)
 	}
@@ -44,7 +60,7 @@ func (s *Service) CheckAndApply(ctx context.Context) (Result, error) {
 		}, nil
 	}
 
-	if _, err := selfupdate.UpdateSelf(ctx, s.version, repo); err != nil {
+	if _, err := s.updater.UpdateSelf(ctx, s.version, repo); err != nil {
 		return Result{}, fmt.Errorf("download update: %w", err)
 	}
 

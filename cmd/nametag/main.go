@@ -13,7 +13,11 @@ func main() {
 		platform.WaitForExit(pid)
 	}
 
-	if err := app.New().Run(); err != nil {
+	a, err := app.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := a.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
