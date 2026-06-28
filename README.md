@@ -73,6 +73,10 @@ Source lives on GitHub (mikstew/nametag). I use GitHub Actions for CI/CD: pushin
 
 The app polls GitHub Releases every minute for a newer version. When one is found, it downloads the correct binary for the host OS/arch, replaces the running executable on disk, and performs a handoff restart (the new instance starts and waits for the old process to exit before showing the window). Later launches use the updated binary automatically. A true seamless hot-swap of the Go running binary didn't seem possible, so I opted to coordinate a handoff from the old to new binary with a brief gap during the transition.
 
+### Update integrity
+
+Downloads are not applied blindly. Each release includes a `checksums.txt` file with SHA256 hashes for every platform binary. The app uses `go-selfupdate`'s `ChecksumValidator` to verify the downloaded executable against that manifest before replacing itself. If the checksum is missing or does not match, the update is rejected and the running version is left unchanged. This protects against corrupted downloads; it does not defend against a compromised release pipeline (that would require signed checksums or code signing as a further step).
+
 # Questions
 
 1) Q: To AI or not to AI?
