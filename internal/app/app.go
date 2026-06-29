@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/v2/container"
 
 	"github.com/mikio/nametag/internal/config"
+	"github.com/mikio/nametag/internal/log"
 	"github.com/mikio/nametag/internal/platform"
 	"github.com/mikio/nametag/internal/ui/nametag"
 	"github.com/mikio/nametag/internal/update"
@@ -45,6 +46,8 @@ func New() (*App, error) {
 
 // Run opens the window and blocks until it is closed.
 func (a *App) Run() error {
+	log.Info("starting app", "version", config.Version, "name", config.DisplayName)
+
 	a.window = a.fyneApp.NewWindow(config.WindowTitle)
 	a.window.Resize(fyne.NewSize(windowWidth, windowHeight))
 	a.window.SetFixedSize(true)
@@ -61,6 +64,7 @@ func (a *App) Run() error {
 }
 
 func (a *App) startAutoUpdate() {
+	log.Info("automatic update checks enabled", "interval", updateCheck)
 	go func() {
 		a.checkForUpdate()
 		ticker := time.NewTicker(updateCheck)
@@ -73,13 +77,19 @@ func (a *App) startAutoUpdate() {
 
 func (a *App) checkForUpdate() {
 	result, err := a.updater.CheckAndApply(context.Background())
-	if err != nil || !result.Updated {
+	if err != nil {
+		log.Debug("update check failed", "err", err)
+		return
+	}
+	if !result.Updated {
 		return
 	}
 
 	fyne.Do(func() {
+		log.Info("restarting for update", "version", result.Version)
 		a.window.Hide()
 		if err := platform.LaunchHandoff(); err != nil {
+			log.Error("handoff restart failed", "err", err)
 			a.window.Show()
 			return
 		}

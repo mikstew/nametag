@@ -6,6 +6,8 @@ import (
 	"runtime"
 
 	"github.com/creativeprojects/go-selfupdate"
+
+	"github.com/mikio/nametag/internal/log"
 )
 
 const checksumsFile = "checksums.txt"
@@ -35,6 +37,8 @@ func New(repo, version string) (*Service, error) {
 		return nil, fmt.Errorf("create updater: %w", err)
 	}
 
+	log.Info("update service ready", "repo", repo, "version", version)
+
 	return &Service{
 		repo:    repo,
 		version: version,
@@ -46,6 +50,8 @@ func New(repo, version string) (*Service, error) {
 func (s *Service) CheckAndApply(ctx context.Context) (Result, error) {
 	repo := selfupdate.ParseSlug(s.repo)
 
+	log.Debug("checking for updates", "current", s.version)
+
 	latest, found, err := s.updater.DetectLatest(ctx, repo)
 	if err != nil {
 		return Result{}, fmt.Errorf("check for updates: %w", err)
@@ -55,14 +61,19 @@ func (s *Service) CheckAndApply(ctx context.Context) (Result, error) {
 	}
 
 	if latest.LessOrEqual(s.version) {
+		log.Debug("already on latest version", "current", s.version, "latest", latest.Version())
 		return Result{
 			Message: fmt.Sprintf("Already on the latest version (v%s).", s.version),
 		}, nil
 	}
 
+	log.Info("downloading update", "current", s.version, "latest", latest.Version(), "asset", latest.AssetName)
+
 	if _, err := s.updater.UpdateSelf(ctx, s.version, repo); err != nil {
 		return Result{}, fmt.Errorf("download update: %w", err)
 	}
+
+	log.Info("update installed", "version", latest.Version())
 
 	return Result{
 		Updated: true,
