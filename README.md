@@ -76,7 +76,7 @@ go test ./...
 
 For this challenge I built a small cross-platform desktop app in Go using Fyne that displays a nametag with configurable name and background color. Name and color are set at build time in config, then baked into each release binary. Despite this being a very simple app I tried to structure it like a standard Go app layout.
 
-Source lives on GitHub (mikstew/nametag). I use GitHub Actions for CI/CD: pushing a version tag (e.g. v1.0.8) triggers a workflow that builds native binaries for macOS (arm64, amd64), Linux (arm64, amd64), and Windows (amd64). Because Fyne uses CGO, each platform is built on its own runner rather than cross-compiled from a single machine. Artifacts are published to GitHub Releases.
+Source lives on GitHub ([mikstew/nametag](https://github.com/mikstew/nametag)). I use GitHub Actions for CI/CD: pushing a version tag (e.g. v1.0.8) triggers a workflow that builds native binaries for macOS (arm64, amd64), Linux (arm64, amd64), and Windows (amd64). Because Fyne uses CGO, each platform is built on its own runner rather than cross-compiled from a single machine. Artifacts are published to GitHub Releases ([here](https://github.com/mikstew/nametag/releases)).
 
 The app polls GitHub Releases every minute for a newer version. When one is found, it downloads the correct binary for the host OS/arch, replaces the running executable on disk, and performs a handoff restart (the new instance starts and waits for the old process to exit before showing the window). Later launches use the updated binary automatically. A true seamless hot-swap of the Go running binary didn't seem possible, so I opted to coordinate a handoff from the old to new binary with a brief gap during the transition.
 
