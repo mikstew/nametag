@@ -6,17 +6,17 @@ import (
 
 	"github.com/mikio/nametag/internal/app"
 	"github.com/mikio/nametag/internal/config"
-	"github.com/mikio/nametag/internal/log"
+	applog "github.com/mikio/nametag/internal/log"
 	"github.com/mikio/nametag/internal/platform"
 )
 
 func main() {
 	if pid := platform.HandoffPID(os.Args[1:]); pid > 0 {
-		log.Info("waiting for previous instance to exit", "pid", pid)
+		applog.Info("waiting for previous instance to exit", "pid", pid)
 		platform.WaitForExit(pid)
 	}
 
-	log.Info("nametag", "version", config.Version)
+	applog.Info("nametag", "version", config.Version)
 
 	a, err := app.New()
 	if err != nil {
